@@ -1,8 +1,3 @@
-const prompt = require("prompt-sync")({ sigint: true });
-
-
-
-let patenteInput = prompt("Ingrese la patente del vehiculo");
 
 let horaIngreso = prompt("Registre la hora de ingreso del vehiculo");
 
@@ -11,49 +6,77 @@ let horaEgreso = prompt("Ingrese la hora de egreso del vehiculo");
 let cantidadHorasEstacionado = prompt("¿Cuanto tiempo estuvo estacionado?")
 
 let precioPorHora = 150;
-let autosActuales = 0;
 
 let totalAbonar = cantidadHorasEstacionado * precioPorHora;
-alert("se debe la cantidad de" + totalAbonar);
+alert("se debe la cantidad de" + totalAbonar); 
 
-
-
-let capacidadTotalVehiculos = 80;
-let cantidadVehiculos = parseInt(prompt("Ingrese la cantidad de vehiculos en el estacionamiento"));
-
-
-function calcularDisponibilidad() {
-    return cantidadVehiculos <= capacidadTotalVehiculos;
+class Estacionamiento {
+    constructor(listadoVehiculos, capacidadTotalVehiculos) {
+        this.listadoVehiculos = []
+        this.capacidadTotalVehiculos = capacidadTotalVehiculos
+    }
 }
 
-function registrarIngreso() {
-    if (calcularDisponibilidad()) {
-        autosActuales += 1;
+const estacionamientoJson = JSON.stringify(Estacionamiento);
+localStorage.setItem("Estacionamiento", estacionamientoJson);
+
+class Auto {
+    constructor (patente){
+        this.patente = patente;
+    }
+}
+
+const AutoJson = JSON.stringify(Auto);
+localStorage.setItem("Auto", AutoJson);
+
+
+// Inicializo estacionamiento
+let capacidadTotalVehiculos = parseInt(prompt("Ingrese la cantidad de vehiculos que permite el estacionamiento"));
+let estacionamiento = new Estacionamiento(capacidadTotalVehiculos);
+
+function registrarIngreso(patente) {
+    if (hayDisponibilidad()) {
+        let auto1 = new Auto(patente);
+        estacionamiento.listadoVehiculos.push(auto1);
+        alert(`Auto patente ${patente} se ingreso correctamente`); 
     } else {
-        alert("Hay lugar")
+        alert("No hay lugar")
     }
 }
 
-let ingresoAutos = () =>{
-    for (let i = 0; i < autosActuales; i++){
-        alert("auto numero" + i)  
-    }
-    alert("auto numero" + i)
+const registrarIngresoJson = JSON.stringify(registrarIngreso);
+localStorage.setItem = ("registrarIngreso", registrarIngresoJson);
 
+function hayDisponibilidad() {
+    return estacionamiento.listadoVehiculos.length < capacidadTotalVehiculos;
 }
 
 
+// Ingreso un vehiculo
+let patenteIngresada = prompt("Ingrese la patente del vehiculo");
+registrarIngreso(patenteIngresada);
 
+const patenteJson = JSON.stringify(patenteIngresada);
+localStorage.setItem ("patenteIngresada", patenteJson);
 
-/* CUANDO VEAMOS ARRAY 
-let listadoVehiculos = [
-    {
-        patente: "AF428OR",
-        vehiculo: "Fiat Pulse",
-    }
+// Ingreso un vehiculo mas
+let patenteIngresada2 = prompt("Ingrese la patente del vehiculo");
+registrarIngreso(patenteIngresada2);
 
-];
+const patenteIngresada2Json = JSON.stringify(patenteIngresada2);
+localStorage.setItem("patenteIngresada2", patenteIngresada2Json);
 
-console.log(listadoVehiculos); */
+console.log(estacionamiento);
 
+const busquedaPorPatente = listadoVehiculos.find((vehiculo) => {
+    return vehiculo.patente === "";
+});
+
+console.log(busquedaPorPatente);
+
+const encontrarPatente = listadoVehiculos.filter((vehiculo) => {
+    return vehiculo.patente === "";
+});
+
+console.log(encontrarPatente);
 
