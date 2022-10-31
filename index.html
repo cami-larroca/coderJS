@@ -5,29 +5,50 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyecto Javascript</title>
+
+    <!-- ACA PONGO LIBRERIAS-->
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.1.0/css/all.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <title> Proyecto Final Camila Larroca </title>
 </head>
 
 <body>
 
-    <h1> Sistema de estacionamiento medido</h1>
+    <section>
+        <h1> SISTEMA DE ESTACIONAMIENTO MEDIDO</h1>
+        <label id="lugares_disponibles">LUGARES DISPONIBLES</label>
 
-    <h4>Nuevo Vehiculo</h4>
-<form id="formulario_agregar_patente_vehiculo">
-
-    <input type="text" id="pantente_vehiculo" placeholder= "Patente" autocomplete="off" />
-
-    <br>  
-    <br>
+        <h4>GESTION DE VEHICULOS</h4>
 
 
-    <button type="submit">Ingresar</button>
+        <!-- OTRO DOM-->
+        <input type="text" id="patente_vehiculo" placeholder="PATENTE" autocomplete="off" />
+        <input type="text" id="modelo_vehiculo" placeholder="MODELO" autocomplete="off" />
+        <input type="text" id="color_vehiculo" placeholder="COLOR" autocomplete="off" />
+
+        <br>
+        <br>
+
+        <!-- OTRO DOM-->
+        <button id="botonIngreso">Ingreso</button>
+        <!-- DOM-->
+        <button id="botonEgreso">Egreso</button>
 
 
-</form>
+        <script src="./Estacionamiento.js"></script>
+        <script src="./Auto.js"></script>
+        <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="./scriptEstac.js"></script>
 
-    
+    </section>
+
+<footer>
+        <!-- OTRO NODO: GET ELEMENT BY CLASS NAME -->
+        <p class="copyright">Copyright 2022. All Rights Reserved</p>
+</footer>
+
 </body>
-<script src="./proyect.js">
-</script>
 </html>
