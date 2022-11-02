@@ -24,14 +24,33 @@ function lugaresDisponibles() {
 
 function hayDisponibilidad() {
     return estacionamiento.listadoVehiculos.length < capacidadTotalVehiculos;
-    // alert con libreria sweet. HAY DISPONIBILIDAD
 }
 
 function registrarIngreso(patente) {
+    if (patente === null || patente === "") {
+        return ({ "status": false, "message": "Patente no ingresada" });
+    }
     if (hayDisponibilidad()) {
         let auto1 = new Auto(patente);
         estacionamiento.listadoVehiculos.push(auto1);
         actualizarTextLugaresDisponibles();
+        return ({ "status": true, "message": "Auto ingresado" });
+    } else {
+        return ({ "status": false, "message": "No hay lugar" });
+    }
+}
+
+
+
+let botonIngreso = document.getElementById("botonIngreso");
+botonIngreso.onclick = () => {
+    let inputPatente = document.getElementById("patente_vehiculo");
+    let patente = inputPatente.value;
+
+    let result = registrarIngreso(patente);
+    if (result.status) {
+        inputPatente.value = null;
+        updateTable();
         Swal.fire({
             title: 'Auto ingresado!',
             text: `Auto patente ${patente} se ingreso correctamente`,
@@ -41,7 +60,7 @@ function registrarIngreso(patente) {
     } else {
         Swal.fire({
             title: 'Error!',
-            text: "No hay lugar disponible",
+            text: result.message,
             icon: 'error',
             confirmButtonText: 'Aceptar'
         });
@@ -49,26 +68,23 @@ function registrarIngreso(patente) {
 }
 
 
-let botonIngreso = document.getElementById("botonIngreso");
-botonIngreso.onclick = () => {
-    let inputPatente = document.getElementById("patente_vehiculo");
-    let patente = inputPatente.value;
-    let patente1= inputPatente.value = "";
-    registrarIngreso(patente);
-}
-
-
 let botonEgreso = document.getElementById("botonEgreso");
 botonEgreso.onclick = () => {
     let inputPatente = document.getElementById("patente_vehiculo");
     let patente = inputPatente.value;
-    let patente1 = inputPatente.value = "";
+    if (patente === "") {
+        Swal.fire({
+            title: 'Error!',
+            text: 'No se ingresó ninguna patente',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        })
+    }
+
 
     let cantidadAutosPrevioEgreso = estacionamiento.listadoVehiculos.length;
     let nuevaLista = estacionamiento.listadoVehiculos.filter(auto => auto.patente !== patente);
     estacionamiento.listadoVehiculos = nuevaLista;
-
-
 
     if (estacionamiento.listadoVehiculos.length < cantidadAutosPrevioEgreso) {
         actualizarTextLugaresDisponibles();
@@ -80,7 +96,7 @@ botonEgreso.onclick = () => {
         })
     } else {
         Swal.fire({
-            title: 'Atencion!',
+            title: 'Atención!',
             text: 'El auto no se encuentra en el estacionamiento',
             icon: 'warning',
             confirmButtonText: 'Aceptar'
@@ -88,6 +104,27 @@ botonEgreso.onclick = () => {
     }
 }
 
+
+function updateTable() {
+    clearTable();
+    for (let i = 0; i < estacionamiento.listadoVehiculos.length; i++) {
+        const auto = estacionamiento.listadoVehiculos[i];
+        addRow(auto);
+    }
+}
+
+function clearTable() {
+    let table = document.getElementById("table");
+    table.innerHTML = "";
+}
+
+function addRow(auto) {
+    let table = document.getElementById('table');
+    let rowCount = table.rows.length;
+    let row = table.insertRow(rowCount);
+    let cellPatente = row.insertCell(0);
+    cellPatente.innerHTML = auto.patente;
+}
 
 function findAutoByPatente(patente) {
     for (const auto of estacionamiento.listadoVehiculos) {
@@ -108,36 +145,4 @@ let listadoVehiculosJSON = JSON.stringify("listadoVehiculos");
 localStorage.setItem("listadoVehiculos", listadoVehiculosJSON);
 
 
-/* TABLA 
 
-function actualizarTabla() {
-    let body = document.getElementsByTagName("body")[0];
-
-    // Crea un elemento <table> y un elemento <tbody>
-    let tabla = document.createElement("table");
-    let tblBody = document.createElement("tbody");
-
-    // Creo las filas
-    for (let i = 0; i < estacionamiento.listadoVehiculos; i++) {
-        // Crea las hileras de la tabla
-        let fila = document.createElement("tr");
-
-        for (let j = 0; j < 4; j++) {
-            let columna = document.createElement("td");
-            let textoCelda = document.createTextNode("celda en la hilera " + i + ", columna " + j);
-            celda.appendChild(textoCelda);
-            hilera.appendChild(celda);
-        }
-
-        // agrega la hilera al final de la tabla (al final del elemento tblbody)
-        tblBody.appendChild(hilera);
-    }
-
-    // posiciona el <tbody> debajo del elemento <table>
-    tabla.appendChild(tblBody);
-    // appends <table> into <body>
-    body.appendChild(tabla);
-    // modifica el atributo "border" de la tabla y lo fija a "2";
-    tabla.setAttribute("border", "2");
-}
-*/
