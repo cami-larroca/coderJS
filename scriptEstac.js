@@ -114,8 +114,9 @@ function updateTable() {
 }
 
 function clearTable() {
-    let table = document.getElementById("table");
-    table.innerHTML = "";
+    for(let i= 1; i < table.rows.length; i++) {
+        table.deleteRow(i);
+    } 
 }
 
 function addRow(auto) {
@@ -124,7 +125,20 @@ function addRow(auto) {
     let row = table.insertRow(rowCount);
     let cellPatente = row.insertCell(0);
     cellPatente.innerHTML = auto.patente;
+
+    let cellHoraIngreso = row.insertCell(1);
+    cellHoraIngreso.innerHTML = auto.patente;
+
+    let cellMonto = row.insertCell(2);
+    cellMonto.innerHTML = auto.patente;
+
+    let cellEstadoActual = row.insertCell(3);
+    cellEstadoActual.innerHTML = auto.patente;
 }
+
+
+
+
 
 function findAutoByPatente(patente) {
     for (const auto of estacionamiento.listadoVehiculos) {
