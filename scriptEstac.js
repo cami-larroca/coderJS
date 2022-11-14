@@ -1,25 +1,27 @@
-
+let precioHora = 250;
 let capacidadTotalVehiculos = 80;
 let estacionamiento;
 
-
 function initPage() {
-    estacionamiento = new Estacionamiento(capacidadTotalVehiculos);
+    estacionamiento = new Estacionamiento([], capacidadTotalVehiculos, precioHora);
     actualizarTextLugaresDisponibles();
 }
 
 initPage();
 
 function actualizarTextLugaresDisponibles() {
-    let lugaresDisponiblesElement = document.getElementById("lugares_disponibles");
+    const lugaresDisponiblesElement = document.getElementById("lugares_disponibles");
     lugaresDisponiblesElement.innerText = "Lugares Disponibles: " + lugaresDisponibles();
 }
 
-
-
 function lugaresDisponibles() {
-    return capacidadTotalVehiculos - estacionamiento.listadoVehiculos.length;
-
+    let contadorAutosEstadoIngresado = 0;
+    for(let i = 0; i < estacionamiento.listadoVehiculos.length; i++) {
+        if (estacionamiento.listadoVehiculos[i].estado === "INGRESADO") {
+            contadorAutosEstadoIngresado++;
+        }
+    }
+    return capacidadTotalVehiculos - contadorAutosEstadoIngresado;
 }
 
 function hayDisponibilidad() {
@@ -30,17 +32,28 @@ function registrarIngreso(patente) {
     if (patente === null || patente === "") {
         return ({ "status": false, "message": "Patente no ingresada" });
     }
+
+    // VER ESTO
+    let listaAutosEstacionamientoEncontrados = findListadoAutoEstacionamientoByPatente(patente);
+    for (let i = 0; i < listaAutosEstacionamientoEncontrados.length;  i++) {
+        if (listaAutosEstacionamientoEncontrados[i].estado === "INGRESADO") {
+            return ({ "status": false, "message": "Auto ya ingresado" });
+        }
+    }
+
     if (hayDisponibilidad()) {
-        let auto1 = new Auto(patente);
-        estacionamiento.listadoVehiculos.push(auto1);
+        let auto = new Auto(patente);
+        let horaIngreso = new Date();
+        let dateHanddler = new DateHanddler(horaIngreso, null);
+
+        let autoEstacionamiento = new AutoEstacionamiento(auto, dateHanddler, "INGRESADO", "")
+        estacionamiento.listadoVehiculos.push(autoEstacionamiento);
         actualizarTextLugaresDisponibles();
         return ({ "status": true, "message": "Auto ingresado" });
     } else {
         return ({ "status": false, "message": "No hay lugar" });
     }
 }
-
-
 
 let botonIngreso = document.getElementById("botonIngreso");
 botonIngreso.onclick = () => {
@@ -50,7 +63,7 @@ botonIngreso.onclick = () => {
     let result = registrarIngreso(patente);
     if (result.status) {
         inputPatente.value = null;
-        updateTable();
+        updateTable(estacionamiento.listadoVehiculos);
         Swal.fire({
             title: 'Auto ingresado!',
             text: `Auto patente ${patente} se ingreso correctamente`,
@@ -65,98 +78,100 @@ botonIngreso.onclick = () => {
             confirmButtonText: 'Aceptar'
         });
     }
+
 }
 
+function registrarEgreso(patente) {
+    if(patente === null || patente === "") {
+        return ({ "status": false, "message": "Patente no ingresada" });
+    }
+
+    for(let i = 0; i < estacionamiento.listadoVehiculos.length; i++) {
+        if (estacionamiento.listadoVehiculos[i].auto.patente === patente) {
+            estacionamiento.listadoVehiculos[i].estado = "EGRESADO";
+        }
+    }
+    actualizarTextLugaresDisponibles();
+    updateTable(estacionamiento.listadoVehiculos);
+    return ({ "status": true, "message": "Auto ingresado" });
+}
 
 let botonEgreso = document.getElementById("botonEgreso");
 botonEgreso.onclick = () => {
     let inputPatente = document.getElementById("patente_vehiculo");
     let patente = inputPatente.value;
-    if (patente === "") {
+    let result = registrarEgreso(patente);
+    if (result.status) {
         Swal.fire({
-            title: 'Error!',
-            text: 'No se ingresó ninguna patente',
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
-        })
-    }
-
-
-    let cantidadAutosPrevioEgreso = estacionamiento.listadoVehiculos.length;
-    let nuevaLista = estacionamiento.listadoVehiculos.filter(auto => auto.patente !== patente);
-    estacionamiento.listadoVehiculos = nuevaLista;
-
-    if (estacionamiento.listadoVehiculos.length < cantidadAutosPrevioEgreso) {
-        actualizarTextLugaresDisponibles();
-        Swal.fire({
-            title: 'Auto removido!',
+            title: 'Auto egresado!',
             text: 'Se realizó el egreso con éxito!',
             icon: 'success',
             confirmButtonText: 'Aceptar'
         })
     } else {
         Swal.fire({
-            title: 'Atención!',
-            text: 'El auto no se encuentra en el estacionamiento',
-            icon: 'warning',
+            title: 'Error!',
+            text: result.message,
+            icon: 'error',
             confirmButtonText: 'Aceptar'
-        })
+        });
     }
 }
 
-
-function updateTable() {
+function updateTable(listaAutos) {
     clearTable();
-    for (let i = 0; i < estacionamiento.listadoVehiculos.length; i++) {
-        const auto = estacionamiento.listadoVehiculos[i];
-        addRow(auto);
+    for (let i = 0; i < listaAutos.length; i++) {
+        const autoEstacionamiento = listaAutos[i];
+        addRow(autoEstacionamiento);
     }
 }
 
 function clearTable() {
-    for(let i= 1; i < table.rows.length; i++) {
+    for (let i = 1; i < table.rows.length; i++) {
         table.deleteRow(i);
-    } 
+    }
 }
 
-function addRow(auto) {
-    let table = document.getElementById('table');
-    let rowCount = table.rows.length;
-    let row = table.insertRow(rowCount);
+// tabla con historial vehiculos
+
+function addRow(autoEstacionamiento) {
+    const table = document.getElementById('table');
+    const rowCount = table.rows.length;
+    const row = table.insertRow(rowCount);
+
     let cellPatente = row.insertCell(0);
-    cellPatente.innerHTML = auto.patente;
+    cellPatente.innerHTML = autoEstacionamiento.auto.patente;
 
     let cellHoraIngreso = row.insertCell(1);
-    cellHoraIngreso.innerHTML = auto.patente;
+    cellHoraIngreso.innerHTML = autoEstacionamiento.dateHanddler.getTimeStringFromDate(autoEstacionamiento.horaIngreso);
 
     let cellMonto = row.insertCell(2);
-    cellMonto.innerHTML = auto.patente;
+    cellMonto.innerHTML = autoEstacionamiento.monto;
 
-    let cellEstadoActual = row.insertCell(3);
-    cellEstadoActual.innerHTML = auto.patente;
+    let cellEstado = row.insertCell(3);
+    cellEstado.innerHTML = autoEstacionamiento.estado;
+
 }
 
+let buscarVehiculo = document.getElementById("buscarPatente");
+buscarPatente.onclick = () => {
+    let newLista = findListadoAutoEstacionamientoByPatente(patente);
+    updateTable(newLista);
+}
 
-
-
-
-function findAutoByPatente(patente) {
-    for (const auto of estacionamiento.listadoVehiculos) {
-        if (auto.patente === patente) {
-            return auto;
+function findListadoAutoEstacionamientoByPatente(patente) {
+    let lista = []
+    for (let i = 0; i < estacionamiento.listadoVehiculos.length; i++) {
+        if (estacionamiento.listadoVehiculos[i].auto.patente === patente) {
+            lista.push(estacionamiento.listadoVehiculos[i]);
         }
     }
-    return null;
+    return lista;
 }
-actualizarTextLugaresDisponibles();
-
-/* 
-const dateTime = luxon.DateTime; 
-const now = DateTime.now; */
 
 
 let listadoVehiculosJSON = JSON.stringify("listadoVehiculos");
 localStorage.setItem("listadoVehiculos", listadoVehiculosJSON);
 
 
-
+//fetch ("https://www.smn.gob.ar/");

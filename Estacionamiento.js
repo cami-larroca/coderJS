@@ -1,6 +1,7 @@
 class Estacionamiento {
-    constructor(listadoVehiculos, capacidadTotalVehiculos) {
-        this.listadoVehiculos = []
-        this.capacidadTotalVehiculos = capacidadTotalVehiculos
+    constructor(listadoVehiculos, capacidadTotalVehiculos, precioHora) {
+        this.listadoVehiculos = listadoVehiculos;
+        this.capacidadTotalVehiculos = capacidadTotalVehiculos;
+        this.precioHora = precioHora;
     }
 }
