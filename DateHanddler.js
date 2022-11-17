@@ -7,7 +7,7 @@ class DateHanddler {
     } 
     
     getTimeStringFromDate(date) {
-        if(date != null) {
+        if(date !== null) {
             const format = "HH:mm DD/MM/YYYY";
             return moment(date).format(format);
         } else {

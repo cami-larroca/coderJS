@@ -6,24 +6,30 @@ let estacionamiento;
 function initPage() {
     estacionamiento = new Estacionamiento([], capacidadTotalVehiculos, precioHora);
     actualizarTextLugaresDisponibles();
-    /*
-    actualizarClima(); */
     let loading = document.getElementById("loading")
     loading.style.display = "none";
+    actualizarClima();
 }
 
 initPage();
+
+function actualizarClima() {
+    fetch('https://api.openweathermap.org/data/2.5/weather?lat=-31.4135&lon=-64.1811&appid=fcef5e4b349bc4bc75237372b67d4ce4&units=metric')
+        .then(response => response.json())
+        .then(response => {
+            let temperatura = response["main"]["temp"];
+            const actualizarClimaElement = document.getElementById("clima");
+            actualizarClimaElement.innerText = "Clima de hoy: " + Math.trunc(temperatura) + "°";
+        })
+        .catch(error => {
+            console.log(error);
+        });
+}
 
 function actualizarTextLugaresDisponibles() {
     const lugaresDisponiblesElement = document.getElementById("lugares_disponibles");
     lugaresDisponiblesElement.innerText = "Lugares Disponibles: " + lugaresDisponibles();
 }
-
-/* VER ESTO 
-
-function actualizarClima(){
-
-} */
 
 function lugaresDisponibles() {
     let contadorAutosEstadoIngresado = 0;
@@ -142,7 +148,7 @@ function updateTable(listaAutos) {
 
 function clearTable() {
     const table = document.getElementById('table');
-    while(table.rows.length > 1) {
+    while (table.rows.length > 1) {
         table.deleteRow(1);
     }
 }
@@ -192,7 +198,7 @@ let buscarVehiculo = document.getElementById("buscarPatente");
 buscarPatente.onclick = () => {
     let inputPatente = document.getElementById("patente_vehiculo");
     let patente = inputPatente.value;
-    if(patente !== null && patente !== "") {
+    if (patente !== null && patente !== "") {
         let loading = document.getElementById("loading")
         loading.style.display = "inline-block";
 
@@ -211,9 +217,4 @@ let listadoVehiculosJSON = JSON.stringify("listadoVehiculos");
 localStorage.setItem("listadoVehiculos", listadoVehiculosJSON);
 
 
-
-
-fetch('http://api.openweathermap.org/geo/1.0/direct?q=cordoba%2C+argentina&appid=fcef5e4b349bc4bc75237372b67d4ce4')
-    .then(response => response.json())
-    .then(response => console.log(response));
 

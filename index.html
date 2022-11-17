@@ -18,8 +18,13 @@
 <body>
 
     <section>
+        <label id="clima">Clima de hoy: </label>
+        <br>
+        <br>
         <h1> SISTEMA DE ESTACIONAMIENTO MEDIDO</h1>
         <label id="lugares_disponibles">LUGARES DISPONIBLES</label>
+
+
 
         <h4>GESTION DE VEHICULOS</h4>
 
@@ -32,21 +37,33 @@
         <!-- DOM-->
         <button id="botonEgreso">Egreso</button>
         <button id="buscarPatente">Buscar Patente</button>
-        <div id="loading" class="lds-roller"  >
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+
+        <div id="loading" class="loader">
+            <div class="loader-inner">
+                <div class="loader-line-wrap">
+                    <div class="loader-line"></div>
+                </div>
+                <div class="loader-line-wrap">
+                    <div class="loader-line"></div>
+                </div>
+                <div class="loader-line-wrap">
+                    <div class="loader-line"></div>
+                </div>
+                <div class="loader-line-wrap">
+                    <div class="loader-line"></div>
+                </div>
+                <div class="loader-line-wrap">
+                    <div class="loader-line"></div>
+                </div>
+            </div>
         </div>
 
         <br>
         <br>
+        <br>
+        <br>
 
-        <label id="historico_vehiculos">HISTORIAL DE VEHICULOS</label>
+        <label id="historicoVehiculos">HISTORIAL DE VEHICULOS</label>
         <table id="table">
             <tr>
                 <td><strong>Patente</strong></td>
@@ -57,13 +74,6 @@
         </table>
 
     </section>
-
-    <footer>
-        <!-- OTRO NODO: GET ELEMENT BY CLASS NAME -->
-        <p class="copyright">Copyright 2022. All Rights Reserved</p>
-    </footer>
-
-
 
     <script src="./Estacionamiento.js"></script>
     <script src="./Auto.js"></script>
