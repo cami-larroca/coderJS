@@ -26,18 +26,22 @@
 
         <!-- OTRO DOM-->
         <input type="text" id="patente_vehiculo" placeholder="PATENTE" autocomplete="off" />
-        <input type="text" id="modelo_vehiculo" placeholder="MODELO" autocomplete="off" />
-        <input type="text" id="color_vehiculo" placeholder="COLOR" autocomplete="off" />
-
-        <br>
-        <br>
 
         <!-- OTRO DOM-->
         <button id="botonIngreso">Ingreso</button>
         <!-- DOM-->
         <button id="botonEgreso">Egreso</button>
         <button id="buscarPatente">Buscar Patente</button>
-
+        <div id="loading" class="lds-roller"  >
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
 
         <br>
         <br>
@@ -47,7 +51,7 @@
             <tr>
                 <td><strong>Patente</strong></td>
                 <td><strong>Hora Ingreso</strong></td>
-                <td><strong>Monto</strong></td>
+                <td><strong>Hora Egreso</strong></td>
                 <td><strong>Estado Actual</strong></td>
             </tr>
         </table>
@@ -65,8 +69,9 @@
     <script src="./Auto.js"></script>
     <script src="./AutoEstacionamiento.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src= "./DateHanddler.js" ></script>
+    <script src="./DateHanddler.js"></script>
     <script src="./scriptEstac.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 </body>
 
 </html>

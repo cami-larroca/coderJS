@@ -1,11 +1,18 @@
+
+
 class DateHanddler {
-    constructor(horaIngreso, horaEgreso) {
-        this.horaEntrada = horaIngreso;
-        this.horaSalida = horaEgreso;
+    constructor(horaEntrada, horaSalida) {
+        this.horaEntrada = horaEntrada;
+        this.horaSalida = horaSalida;
     } 
     
-    getTimeStringFromDate() {
-        return "11:22:33hs";
+    getTimeStringFromDate(date) {
+        if(date != null) {
+            const format = "HH:mm DD/MM/YYYY";
+            return moment(date).format(format);
+        } else {
+            return "";
+        }   
     }
 }
 

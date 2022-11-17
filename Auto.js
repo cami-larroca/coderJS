@@ -1,8 +1,6 @@
 class Auto {
-    constructor (patente, modelo, color){
+    constructor (patente) {
         this.patente = patente;
-        this.modelo = modelo;
-        this.color = color;
     }
 }
 

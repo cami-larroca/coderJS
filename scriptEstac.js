@@ -1,3 +1,4 @@
+
 let precioHora = 250;
 let capacidadTotalVehiculos = 80;
 let estacionamiento;
@@ -5,6 +6,10 @@ let estacionamiento;
 function initPage() {
     estacionamiento = new Estacionamiento([], capacidadTotalVehiculos, precioHora);
     actualizarTextLugaresDisponibles();
+    /*
+    actualizarClima(); */
+    let loading = document.getElementById("loading")
+    loading.style.display = "none";
 }
 
 initPage();
@@ -14,9 +19,15 @@ function actualizarTextLugaresDisponibles() {
     lugaresDisponiblesElement.innerText = "Lugares Disponibles: " + lugaresDisponibles();
 }
 
+/* VER ESTO 
+
+function actualizarClima(){
+
+} */
+
 function lugaresDisponibles() {
     let contadorAutosEstadoIngresado = 0;
-    for(let i = 0; i < estacionamiento.listadoVehiculos.length; i++) {
+    for (let i = 0; i < estacionamiento.listadoVehiculos.length; i++) {
         if (estacionamiento.listadoVehiculos[i].estado === "INGRESADO") {
             contadorAutosEstadoIngresado++;
         }
@@ -33,9 +44,8 @@ function registrarIngreso(patente) {
         return ({ "status": false, "message": "Patente no ingresada" });
     }
 
-    // VER ESTO
     let listaAutosEstacionamientoEncontrados = findListadoAutoEstacionamientoByPatente(patente);
-    for (let i = 0; i < listaAutosEstacionamientoEncontrados.length;  i++) {
+    for (let i = 0; i < listaAutosEstacionamientoEncontrados.length; i++) {
         if (listaAutosEstacionamientoEncontrados[i].estado === "INGRESADO") {
             return ({ "status": false, "message": "Auto ya ingresado" });
         }
@@ -82,18 +92,22 @@ botonIngreso.onclick = () => {
 }
 
 function registrarEgreso(patente) {
-    if(patente === null || patente === "") {
+    if (patente === null || patente === "") {
         return ({ "status": false, "message": "Patente no ingresada" });
     }
+    if (isAutoEnEstacionamientoByPatente(patente) === false) {
+        return ({ "status": false, "message": "El auto no esta en el estacionamiento" });
+    }
 
-    for(let i = 0; i < estacionamiento.listadoVehiculos.length; i++) {
+    for (let i = 0; i < estacionamiento.listadoVehiculos.length; i++) {
         if (estacionamiento.listadoVehiculos[i].auto.patente === patente) {
             estacionamiento.listadoVehiculos[i].estado = "EGRESADO";
+            estacionamiento.listadoVehiculos[i].dateHanddler.horaSalida = new Date();
         }
     }
     actualizarTextLugaresDisponibles();
     updateTable(estacionamiento.listadoVehiculos);
-    return ({ "status": true, "message": "Auto ingresado" });
+    return ({ "status": true, "message": "Auto egresado" });
 }
 
 let botonEgreso = document.getElementById("botonEgreso");
@@ -127,8 +141,9 @@ function updateTable(listaAutos) {
 }
 
 function clearTable() {
-    for (let i = 1; i < table.rows.length; i++) {
-        table.deleteRow(i);
+    const table = document.getElementById('table');
+    while(table.rows.length > 1) {
+        table.deleteRow(1);
     }
 }
 
@@ -143,20 +158,24 @@ function addRow(autoEstacionamiento) {
     cellPatente.innerHTML = autoEstacionamiento.auto.patente;
 
     let cellHoraIngreso = row.insertCell(1);
-    cellHoraIngreso.innerHTML = autoEstacionamiento.dateHanddler.getTimeStringFromDate(autoEstacionamiento.horaIngreso);
+    cellHoraIngreso.innerHTML = autoEstacionamiento.dateHanddler.getTimeStringFromDate(autoEstacionamiento.dateHanddler.horaEntrada);
 
-    let cellMonto = row.insertCell(2);
-    cellMonto.innerHTML = autoEstacionamiento.monto;
+    let cellHoraEgreso = row.insertCell(2);
+    cellHoraEgreso.innerHTML = autoEstacionamiento.dateHanddler.getTimeStringFromDate(autoEstacionamiento.dateHanddler.horaSalida);
 
     let cellEstado = row.insertCell(3);
     cellEstado.innerHTML = autoEstacionamiento.estado;
 
 }
 
-let buscarVehiculo = document.getElementById("buscarPatente");
-buscarPatente.onclick = () => {
-    let newLista = findListadoAutoEstacionamientoByPatente(patente);
-    updateTable(newLista);
+function isAutoEnEstacionamientoByPatente(patente) {
+    let lista = findListadoAutoEstacionamientoByPatente(patente);
+    for (let i = 0; i < lista.length; i++) {
+        if (lista[i].estado === "INGRESADO") {
+            return true;
+        }
+    }
+    return false;
 }
 
 function findListadoAutoEstacionamientoByPatente(patente) {
@@ -169,9 +188,32 @@ function findListadoAutoEstacionamientoByPatente(patente) {
     return lista;
 }
 
+let buscarVehiculo = document.getElementById("buscarPatente");
+buscarPatente.onclick = () => {
+    let inputPatente = document.getElementById("patente_vehiculo");
+    let patente = inputPatente.value;
+    if(patente !== null && patente !== "") {
+        let loading = document.getElementById("loading")
+        loading.style.display = "inline-block";
+
+        setTimeout(() => {
+            let loading = document.getElementById("loading")
+            loading.style.display = "none";
+            let newLista = findListadoAutoEstacionamientoByPatente(patente);
+            updateTable(newLista);
+        }, 3000);
+    } else {
+        updateTable(estacionamiento.listadoVehiculos);
+    }
+}
 
 let listadoVehiculosJSON = JSON.stringify("listadoVehiculos");
 localStorage.setItem("listadoVehiculos", listadoVehiculosJSON);
 
 
-//fetch ("https://www.smn.gob.ar/");
+
+
+fetch('http://api.openweathermap.org/geo/1.0/direct?q=cordoba%2C+argentina&appid=fcef5e4b349bc4bc75237372b67d4ce4')
+    .then(response => response.json())
+    .then(response => console.log(response));
+
