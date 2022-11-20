@@ -2,13 +2,17 @@
 let precioHora = 250;
 let capacidadTotalVehiculos = 80;
 let estacionamiento;
+let loading = document.getElementById("loading");
+let inputPatente = document.getElementById("patente_vehiculo");
+let table = document.getElementById("table");
 
 function initPage() {
     estacionamiento = new Estacionamiento([], capacidadTotalVehiculos, precioHora);
-    actualizarTextLugaresDisponibles();
-    let loading = document.getElementById("loading")
     loading.style.display = "none";
     actualizarClima();
+    estacionamiento.listadoVehiculos = getListadoVehiculosLocalStorage();
+    actualizarTabla(estacionamiento.listadoVehiculos);
+    actualizarTextLugaresDisponibles();
 }
 
 initPage();
@@ -65,6 +69,8 @@ function registrarIngreso(patente) {
         let autoEstacionamiento = new AutoEstacionamiento(auto, dateHanddler, "INGRESADO", "")
         estacionamiento.listadoVehiculos.push(autoEstacionamiento);
         actualizarTextLugaresDisponibles();
+        actualizarListadoVehiculosLocalStorage();
+
         return ({ "status": true, "message": "Auto ingresado" });
     } else {
         return ({ "status": false, "message": "No hay lugar" });
@@ -73,13 +79,11 @@ function registrarIngreso(patente) {
 
 let botonIngreso = document.getElementById("botonIngreso");
 botonIngreso.onclick = () => {
-    let inputPatente = document.getElementById("patente_vehiculo");
     let patente = inputPatente.value;
-
     let result = registrarIngreso(patente);
     if (result.status) {
         inputPatente.value = null;
-        updateTable(estacionamiento.listadoVehiculos);
+        actualizarTabla(estacionamiento.listadoVehiculos);
         Swal.fire({
             title: 'Auto ingresado!',
             text: `Auto patente ${patente} se ingreso correctamente`,
@@ -112,13 +116,14 @@ function registrarEgreso(patente) {
         }
     }
     actualizarTextLugaresDisponibles();
-    updateTable(estacionamiento.listadoVehiculos);
+    actualizarTabla(estacionamiento.listadoVehiculos);
+    actualizarListadoVehiculosLocalStorage();
+
     return ({ "status": true, "message": "Auto egresado" });
 }
 
 let botonEgreso = document.getElementById("botonEgreso");
 botonEgreso.onclick = () => {
-    let inputPatente = document.getElementById("patente_vehiculo");
     let patente = inputPatente.value;
     let result = registrarEgreso(patente);
     if (result.status) {
@@ -138,7 +143,7 @@ botonEgreso.onclick = () => {
     }
 }
 
-function updateTable(listaAutos) {
+function actualizarTabla(listaAutos) {
     clearTable();
     for (let i = 0; i < listaAutos.length; i++) {
         const autoEstacionamiento = listaAutos[i];
@@ -147,16 +152,12 @@ function updateTable(listaAutos) {
 }
 
 function clearTable() {
-    const table = document.getElementById('table');
     while (table.rows.length > 1) {
         table.deleteRow(1);
     }
 }
 
-// tabla con historial vehiculos
-
 function addRow(autoEstacionamiento) {
-    const table = document.getElementById('table');
     const rowCount = table.rows.length;
     const row = table.insertRow(rowCount);
 
@@ -164,10 +165,10 @@ function addRow(autoEstacionamiento) {
     cellPatente.innerHTML = autoEstacionamiento.auto.patente;
 
     let cellHoraIngreso = row.insertCell(1);
-    cellHoraIngreso.innerHTML = autoEstacionamiento.dateHanddler.getTimeStringFromDate(autoEstacionamiento.dateHanddler.horaEntrada);
+    cellHoraIngreso.innerHTML = getTimeStringFromDate(autoEstacionamiento.dateHanddler.horaEntrada);
 
     let cellHoraEgreso = row.insertCell(2);
-    cellHoraEgreso.innerHTML = autoEstacionamiento.dateHanddler.getTimeStringFromDate(autoEstacionamiento.dateHanddler.horaSalida);
+    cellHoraEgreso.innerHTML =getTimeStringFromDate(autoEstacionamiento.dateHanddler.horaSalida);
 
     let cellEstado = row.insertCell(3);
     cellEstado.innerHTML = autoEstacionamiento.estado;
@@ -194,27 +195,45 @@ function findListadoAutoEstacionamientoByPatente(patente) {
     return lista;
 }
 
-let buscarVehiculo = document.getElementById("buscarPatente");
+let buscarPatente = document.getElementById("buscarPatente");
 buscarPatente.onclick = () => {
-    let inputPatente = document.getElementById("patente_vehiculo");
     let patente = inputPatente.value;
     if (patente !== null && patente !== "") {
-        let loading = document.getElementById("loading")
         loading.style.display = "inline-block";
 
         setTimeout(() => {
-            let loading = document.getElementById("loading")
             loading.style.display = "none";
             let newLista = findListadoAutoEstacionamientoByPatente(patente);
-            updateTable(newLista);
+            actualizarTabla(newLista);
         }, 3000);
     } else {
-        updateTable(estacionamiento.listadoVehiculos);
+        actualizarTabla(estacionamiento.listadoVehiculos);
     }
 }
 
-let listadoVehiculosJSON = JSON.stringify("listadoVehiculos");
-localStorage.setItem("listadoVehiculos", listadoVehiculosJSON);
+function actualizarListadoVehiculosLocalStorage() {
+    let listadoVehiculosJSON = JSON.stringify(estacionamiento.listadoVehiculos);
+    localStorage.setItem("listadoVehiculos", listadoVehiculosJSON);
+}
+
+function getListadoVehiculosLocalStorage() {
+    const listadoVehiculos = localStorage.getItem("listadoVehiculos");
+
+    if(listadoVehiculos !== null) {
+        return JSON.parse(listadoVehiculos);
+    } else {
+        return [];
+    }
+}
+
+function getTimeStringFromDate(date) {
+    if(date !== null) {
+        const format = "HH:mm DD/MM/YYYY";
+        return moment(date).format(format);
+    } else {
+        return "";
+    }   
+}
 
 
 
